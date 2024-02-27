@@ -1,6 +1,5 @@
 package fri.uniza.semestralka1.generator
 
-import fri.uniza.semestralka1.util.nextSeed
 import java.util.Random
 
 /**

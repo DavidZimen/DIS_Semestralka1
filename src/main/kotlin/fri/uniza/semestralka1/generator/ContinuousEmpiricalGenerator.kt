@@ -1,9 +1,8 @@
 package fri.uniza.semestralka1.generator
 
-import fri.uniza.semestralka1.util.isABetweenBandC
-import fri.uniza.semestralka1.util.isAEqualsToB
-import fri.uniza.semestralka1.util.isAGreaterThanB
-import fri.uniza.semestralka1.util.nextSeed
+import fri.uniza.semestralka1.general_utils.isABetweenBandC
+import fri.uniza.semestralka1.general_utils.isAEqualsToB
+import fri.uniza.semestralka1.general_utils.isAGreaterThanB
 import java.util.Random
 import kotlin.jvm.Throws
 
@@ -136,21 +135,3 @@ class ContinuousEmpiricalGenerator : Generator {
         }
     }
 }
-
-/**
- * Class to define one interval of generation with given probability.
- */
-data class IntervalProbability(
-    val lowerLimit: Double = 0.0,
-    val higherLimit: Double = 1.0,
-    val probability: Double = 1.0
-)
-
-/**
- * Class to define one interval and its Random generator.
- */
-data class IntervalRandom(
-    val generator: Random,
-    val lowerLimit: Double,
-    val higherLimit: Double
-)

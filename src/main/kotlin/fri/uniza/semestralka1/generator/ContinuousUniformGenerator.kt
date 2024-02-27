@@ -1,7 +1,6 @@
 package fri.uniza.semestralka1.generator
 
-import fri.uniza.semestralka1.util.isALessOrEqualsToB
-import fri.uniza.semestralka1.util.nextSeed
+import fri.uniza.semestralka1.general_utils.isALessOrEqualsToB
 import java.util.Random
 
 /**

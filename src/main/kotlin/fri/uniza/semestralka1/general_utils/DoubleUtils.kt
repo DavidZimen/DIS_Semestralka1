@@ -1,4 +1,4 @@
-package fri.uniza.semestralka1.util
+package fri.uniza.semestralka1.general_utils
 
 import org.apache.commons.math3.util.Precision
 
