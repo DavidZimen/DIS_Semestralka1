@@ -73,6 +73,6 @@ class GeneratorTest {
         }
 
         // write data to file
-        writeToCsv("continuous_empirical_distribution.csv", data)
+        writeToCsv("data/continuous_empirical_distribution.csv", data)
     }
 }
