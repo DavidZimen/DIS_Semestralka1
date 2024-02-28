@@ -10,12 +10,14 @@ open class MonteCarloCore() : SimulationCore() {
      * Number of replications to be done in 1 simulation run.
      * Base value is 1 000 replications.
      */
-    private var replicationsCount = Int.MAX_VALUE
+    protected var replicationsCount = Int.MAX_VALUE
+        private set
 
     /**
      * Indication if simulation is stopped by user.
      */
-    private var stopSimulation = false
+    protected var stopSimulation = false
+        private set
 
     constructor(replicationsCount: Int) : this() {
         this.replicationsCount = replicationsCount
