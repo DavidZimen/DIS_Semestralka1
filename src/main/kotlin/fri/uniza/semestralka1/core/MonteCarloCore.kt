@@ -4,50 +4,67 @@ package fri.uniza.semestralka1.core
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-abstract class MonteCarloCore {
+open class MonteCarloCore : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
      * Base value is 1 000 replications.
      */
-    var replicationsCount: Int = 1_000
+    var replicationsCount = 1_000
         protected set
+
+    /**
+     * Indication if simulation is stopped by user.
+     */
+    private var stopSimulation = false
 
     /**
      * Method to execute before all replications begin.
      */
-    abstract fun beforeReplication()
+    open fun beforeReplication() {}
 
     /**
      * Method to execute before every single replication.
      */
-    abstract fun beforeReplications()
+    open fun beforeReplications() {}
 
     /**
      * Logic of the replication.
      */
-    abstract fun replication()
+    open fun replication() {}
 
     /**
      * Method to execute after every single replication.
      */
-    abstract fun afterReplication()
+    open fun afterReplication() {}
 
     /**
      * Method to execute after all replications are finished.
      */
-    abstract fun afterReplications()
+    open fun afterReplications() {}
 
     /**
      * Runs Monte Carlo simulation with users implementation of abstract methods.
+     * Overrides [SimulationCore.runSimulation].
      */
-    fun runSimulation() {
+    override fun runSimulation() {
         beforeReplications()
         for (i in 0 until replicationsCount) {
+            if (stopSimulation) {
+                break
+            }
             beforeReplication()
             replication()
             afterReplication()
         }
         afterReplications()
+    }
+
+    /**
+     * Stops Monte Carlo simulation.
+     * Overrides [SimulationCore.stopSimulation].
+     */
+    override fun stopSimulation() {
+        stopSimulation = true
     }
 }

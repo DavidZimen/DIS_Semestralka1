@@ -44,12 +44,18 @@ class ContinuousEmpiricalGenerator : Generator {
     }
 
     /**
-     * Key for [generators] map is determined as last key
+     * Key for [generators] map is determined first key in ordered [Map.keys], that is greater than [probability].
      * @return [IntervalRandom] from [generators] map based on provided [probability]
      */
     private fun findIntervalRandom(probability: Double): IntervalRandom {
-        val key = generators.keys.findLast { key -> isAGreaterThanB(probability, key) } ?: 1.0
-        return generators[key]!!
+        var matchedKey = 1.0
+        for (key in generators.keys) {
+            if (isALessThanB(probability, key)) {
+                matchedKey = key
+                break
+            }
+        }
+        return generators[matchedKey]!!
     }
 
     /**
@@ -127,7 +133,7 @@ class ContinuousEmpiricalGenerator : Generator {
          * Custom comparator for interval sorting.
          * Compares [Double] values with own function to provided precision.
          */
-        val INTERVALS_SORTING = Comparator<IntervalProbability> { o1, o2 ->
+        private val INTERVALS_SORTING = Comparator<IntervalProbability> { o1, o2 ->
             isALessThanBComparator(o1.lowerLimit, o2.lowerLimit)
         }
     }
