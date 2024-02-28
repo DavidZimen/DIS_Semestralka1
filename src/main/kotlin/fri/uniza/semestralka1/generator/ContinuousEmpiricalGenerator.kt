@@ -48,7 +48,7 @@ class ContinuousEmpiricalGenerator : Generator {
      * @return [IntervalRandom] from [generators] map based on provided [probability]
      */
     private fun findIntervalRandom(probability: Double): IntervalRandom {
-        val key = generators.keys.findLast { key -> isAGreaterThanB(key, probability) } ?: 1.0
+        val key = generators.keys.findLast { key -> isAGreaterThanB(probability, key) } ?: 1.0
         return generators[key]!!
     }
 
