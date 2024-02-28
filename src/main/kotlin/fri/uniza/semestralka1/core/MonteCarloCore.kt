@@ -4,19 +4,22 @@ package fri.uniza.semestralka1.core
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-open class MonteCarloCore : SimulationCore() {
+open class MonteCarloCore() : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
      * Base value is 1 000 replications.
      */
-    var replicationsCount = 1_000
-        protected set
+    private var replicationsCount = Int.MAX_VALUE
 
     /**
      * Indication if simulation is stopped by user.
      */
     private var stopSimulation = false
+
+    constructor(replicationsCount: Int) : this() {
+        this.replicationsCount = replicationsCount
+    }
 
     /**
      * Method to execute before all replications begin.
