@@ -50,12 +50,12 @@ open class MonteCarloCore : SimulationCore() {
     override fun runSimulation() {
         beforeReplications()
         for (i in 0 until replicationsCount) {
-            if (stopSimulation) {
-                break
-            }
             beforeReplication()
             replication()
             afterReplication()
+            if (stopSimulation) {
+                break
+            }
         }
         afterReplications()
     }
