@@ -1,8 +1,6 @@
 package fri.uniza.semestralka1.generator
 
-import fri.uniza.semestralka1.general_utils.isABetweenBandC
-import fri.uniza.semestralka1.general_utils.isAEqualsToB
-import fri.uniza.semestralka1.general_utils.isAGreaterThanB
+import fri.uniza.semestralka1.general_utils.*
 import java.util.Random
 import kotlin.jvm.Throws
 
@@ -61,30 +59,20 @@ class ContinuousEmpiricalGenerator : Generator {
      */
     @Throws(IllegalStateException::class)
     private fun checkAndInitialize(intervals: List<IntervalProbability>) {
-        intervals.forEachIndexed { i, interval ->
+        // sort for easier overlap checking
+        val sortedIntervals = intervals.sortedWith(INTERVALS_SORTING)
+
+        sortedIntervals.forEachIndexed { i, interval ->
             checkCorrectInterval(interval)
             if (i > 0) {
-                checkOverlapping(intervals[i - 1], interval)
+                checkOverlapping(sortedIntervals[i - 1], interval)
             }
             createIntervalRandom(interval)
         }
 
         if (!isAEqualsToB(generators.keys.last(), 1.0)) {
-            throw IllegalStateException("Cumulative probability can not be lower than 1 !!!")
+            throw IllegalStateException(GeneratorMessage.PROBABILITY_MSG)
         }
-    }
-
-    /**
-     * Checks if cumulative sum of probabilities for provided interval.
-     * @throws IllegalStateException when cumulative sum is greater than 1
-     */
-    @Throws(IllegalStateException::class)
-    private fun checkProbabilitySum(sum: Double, interval: IntervalProbability): Double {
-        val probabilitySum = sum + interval.probability
-        if (probabilitySum > 1) {
-            throw IllegalStateException("Cumulative probability can not be higher than 1 !!!")
-        }
-        return probabilitySum
     }
 
     /**
@@ -95,7 +83,7 @@ class ContinuousEmpiricalGenerator : Generator {
     private fun checkCorrectInterval(interval: IntervalProbability) {
         if (isAGreaterThanB(interval.lowerLimit, interval.higherLimit)) {
             throw IllegalStateException(
-                "Lower interval limit cannot be greater than higher interval limit. For definition: " +
+                "${GeneratorMessage.INTERVAL_EDGES_MSG} For definition: " +
                     "Lower: ${interval.lowerLimit}, " +
                     "Higher: ${interval.higherLimit}, " +
                     "Probability: ${interval.probability}"
@@ -109,16 +97,15 @@ class ContinuousEmpiricalGenerator : Generator {
      */
     @Throws(IllegalStateException::class)
     private fun checkOverlapping(previous: IntervalProbability, current: IntervalProbability) {
-        if (isABetweenBandC(current.lowerLimit, previous.lowerLimit, previous.higherLimit)
-            || isABetweenBandC(current.higherLimit, previous.lowerLimit, previous.higherLimit)) {
-            throw IllegalStateException("Intervals for generation can not overlap !!!")
+        if (!isAEqualsToB(current.lowerLimit, previous.higherLimit)) {
+            throw IllegalStateException(GeneratorMessage.OVERLAP_MSG)
         }
     }
 
     /**
      * Creates new [Map.Entry] into [generators] from [interval].
      * Key is created as sum of last [Map.Entry.key] and [IntervalProbability.probability].
-     * Random is created with seed generated from [seedGenerator].
+     * Random is created with seed generated from [nextSeed].
      */
     private fun createIntervalRandom(interval: IntervalProbability) {
         with(generators) {
@@ -132,6 +119,16 @@ class ContinuousEmpiricalGenerator : Generator {
                     interval.higherLimit
                 )
             )
+        }
+    }
+
+    companion object {
+        /**
+         * Custom comparator for interval sorting.
+         * Compares [Double] values with own function to provided precision.
+         */
+        val INTERVALS_SORTING = Comparator<IntervalProbability> { o1, o2 ->
+            isALessThanBComparator(o1.lowerLimit, o2.lowerLimit)
         }
     }
 }

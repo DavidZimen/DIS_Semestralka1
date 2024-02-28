@@ -39,7 +39,7 @@ class ContinuousUniformGenerator : Generator {
     @Throws(IllegalStateException::class)
     constructor(lowerLimit: Double, higherLimit: Double) {
         if (isALessOrEqualsToB(lowerLimit, higherLimit)) {
-            throw IllegalStateException("Parameter lowerLimit must be greater than parameter higherLimit !!!")
+            throw IllegalStateException(GeneratorMessage.INTERVAL_EDGES_MSG)
         }
         this.lowerLimit = lowerLimit
         this.higherLimit = higherLimit

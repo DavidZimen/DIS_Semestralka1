@@ -27,7 +27,7 @@ class DiscreteUniformGenerator(minValue: Int, maxValue: Int) : Generator {
 
     init {
         if (minValue >= maxValue) {
-            throw IllegalStateException("Parameter minValue can not be greater than parameter maxValue !!!")
+            throw IllegalStateException(GeneratorMessage.MIN_MAX_MSG)
         }
         this.minValue = minValue
         this.maxValue = maxValue + 1

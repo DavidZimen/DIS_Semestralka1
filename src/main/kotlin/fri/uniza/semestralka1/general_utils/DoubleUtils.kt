@@ -22,6 +22,10 @@ fun isALessThanB(a: Double, b: Double): Boolean {
     return Precision.compareTo(a, b, EPSILON) == -1
 }
 
+fun isALessThanBComparator(a: Double, b: Double): Int {
+    return Precision.compareTo(a, b, EPSILON)
+}
+
 fun isABetweenBandC(a: Double, b: Double, c: Double): Boolean {
     var newB = b
     var newC = c
@@ -29,7 +33,7 @@ fun isABetweenBandC(a: Double, b: Double, c: Double): Boolean {
         newB = c
         newC = b
     }
-    return isAGreaterOrEqualsToB(a, newB) && isALessOrEqualsToB(a, newC)
+    return isAGreaterThanB(a, newB) && isALessThanB(a, newC)
 }
 
 fun isAEqualsToB(a: Double, b: Double): Boolean {
