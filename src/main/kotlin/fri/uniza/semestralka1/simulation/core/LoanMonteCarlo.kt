@@ -52,18 +52,16 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
             StrategyType.A -> strategyA
             StrategyType.B -> strategyB
             StrategyType.C -> strategyC
+            else -> return
         }
 
         val years = type.years
         var leftToPay = INITIAL_MORTGAGE_VALUE
-        var year: Int
-        var nextYear: Int
         var yearInterest: Double
         var monthlyPayment: Double
 
-        for (i in years.indices) {
-            year = years[i]
-            nextYear = if (i == years.size - 1) LAST_YEAR else years[i + 1]
+        // always operates with 2 values - also necessary to pair last() with LAST_YEAR
+        for ((year, nextYear) in years.zipWithNext() + (years.last() to LAST_YEAR)) {
             yearInterest = getGenerator(year).sample()
             monthlyPayment = calculateMonthlyPayment(leftToPay, yearInterest, LAST_YEAR - year)
             leftToPay = calculateMoneyLeftToPay(leftToPay, yearInterest, LAST_YEAR - year, nextYear - year)

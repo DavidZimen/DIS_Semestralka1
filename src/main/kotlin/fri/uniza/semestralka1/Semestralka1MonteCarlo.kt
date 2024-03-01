@@ -18,5 +18,5 @@ class Semestralka1MonteCarlo : Application() {
 
 fun main() {
 //    Application.launch(Semestralka1MonteCarlo::class.java)
-    LoanMonteCarlo(5_000_000)
+    LoanMonteCarlo(5_000_000).runSimulation()
 }
