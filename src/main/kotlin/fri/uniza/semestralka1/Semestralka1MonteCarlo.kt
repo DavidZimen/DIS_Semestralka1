@@ -1,6 +1,6 @@
 package fri.uniza.semestralka1
 
-import fri.uniza.semestralka1.simulation.core.LoanMonteCarlo
+import fri.uniza.semestralka1.simulation.LoanMonteCarlo
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene

@@ -10,20 +10,28 @@ open class SimulationCore {
     /**
      * Runs the simulation with provided configuration.
      */
-    open fun runSimulation() {}
+    open fun runSimulation() {
+        throw NotImplementedError("Your simulation provider did not implement this method.")
+    }
 
     /**
      * Stops simulation, without possibility to resume.
      */
-    open fun stopSimulation() {}
+    open fun stopSimulation() {
+        throw NotImplementedError("Your simulation provider did not implement this method.")
+    }
 
     /**
      * Pauses simulation at given point, with possibility to resume..
      */
-    open fun pauseSimulation() {}
+    open fun pauseSimulation() {
+        throw NotImplementedError("Your simulation provider did not implement this method.")
+    }
 
     /**
      * Resumes simulation to the point when it was stopped.
      */
-    open fun resumeSimulation() {}
+    open fun resumeSimulation() {
+        throw NotImplementedError("Your simulation provider did not implement this method.")
+    }
 }

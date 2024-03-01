@@ -1,6 +1,7 @@
-package fri.uniza.semestralka1.simulation.core
+package fri.uniza.semestralka1.simulation
 
 import fri.uniza.semestralka1.generator.*
+import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
 
 class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount) {
@@ -52,7 +53,6 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
             StrategyType.A -> strategyA
             StrategyType.B -> strategyB
             StrategyType.C -> strategyC
-            else -> return
         }
 
         val years = type.years
