@@ -3,8 +3,28 @@ package fri.uniza.semestralka1.simulation
 import fri.uniza.semestralka1.generator.*
 import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
+import kotlin.properties.Delegates
 
 class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount) {
+
+    val strategyAState = StrategyStateObservable()
+    val strategyBState = StrategyStateObservable()
+    val strategyCState = StrategyStateObservable()
+
+    /**
+     * Strategy A.
+     */
+    private val strategyA = Strategy(StrategyType.A)
+
+    /**
+     * Strategy B.
+     */
+    private val strategyB = Strategy(StrategyType.B)
+
+    /**
+     * Strategy C.
+     */
+    private val strategyC = Strategy(StrategyType.C)
 
     /**
      * Map of generators as defined in the assignment.
@@ -13,30 +33,30 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
      */
     private val generators = linkedMapOf<Int, Generator>()
 
-    private val strategyA = Strategy(StrategyType.A)
-    private val strategyB = Strategy(StrategyType.B)
-    private val strategyC = Strategy(StrategyType.C)
-
     override fun beforeReplications() {
         initializeGenerators()
     }
 
     override fun beforeReplication() {
-        strategyA.prepareForReplication()
-        strategyB.prepareForReplication()
-        strategyC.prepareForReplication()
+        StrategyType.values().forEach {
+            it.getStrategy().prepareForReplication()
+        }
     }
 
     override fun replication() {
-        calculateStrategy(StrategyType.A)
-        calculateStrategy(StrategyType.B)
-        calculateStrategy(StrategyType.C)
+        StrategyType.values().forEach {
+            it.calculateStrategy()
+        }
     }
 
     override fun afterReplication() {
-        strategyA.evaluateReplication(replicationsExecuted)
-        strategyB.evaluateReplication(replicationsExecuted)
-        strategyC.evaluateReplication(replicationsExecuted)
+        val mod = replicationsExecuted.mod(STATE_UPDATE_AFTER)
+        StrategyType.values().forEach {
+            it.getStrategy().evaluateReplication(replicationsExecuted)
+            if (mod == 0) {
+                it.updateStrategyState()
+            }
+        }
     }
 
     override fun afterReplications() {
@@ -46,27 +66,6 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
         println("${strategyA.type}: ${strategyA.paidAverage}€")
         println("${strategyB.type}: ${strategyB.paidAverage}€")
         println("${strategyC.type}: ${strategyC.paidAverage}€")
-    }
-
-    private fun calculateStrategy(type: StrategyType) {
-        val strategy = when(type) {
-            StrategyType.A -> strategyA
-            StrategyType.B -> strategyB
-            StrategyType.C -> strategyC
-        }
-
-        val years = type.years
-        var leftToPay = INITIAL_MORTGAGE_VALUE
-        var yearInterest: Double
-        var monthlyPayment: Double
-
-        // always operates with 2 values - also necessary to pair last() with LAST_YEAR
-        for ((year, nextYear) in years.zipWithNext() + (years.last() to LAST_YEAR)) {
-            yearInterest = getGenerator(year).sample()
-            monthlyPayment = calculateMonthlyPayment(leftToPay, yearInterest, LAST_YEAR - year)
-            leftToPay = calculateMoneyLeftToPay(leftToPay, yearInterest, LAST_YEAR - year, nextYear - year)
-            strategy.paidReplication += monthlyPayment * (nextYear - year) * 12
-        }
     }
 
     /**
@@ -132,6 +131,42 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
         generators[2032] = ContinuousUniformGenerator(0.9, 2.2)
     }
 
+    /**
+     * Calculates value of [StrategyType] for one replication.
+     */
+    private fun StrategyType.calculateStrategy() {
+        val strategy = getStrategy()
+
+        var leftToPay = INITIAL_MORTGAGE_VALUE
+        var yearInterest: Double
+        var monthlyPayment: Double
+
+        // always operates with 2 values - also necessary to pair last() with LAST_YEAR
+        for ((year, nextYear) in fixationYears.zipWithNext() + (fixationYears.last() to LAST_YEAR)) {
+            yearInterest = getGenerator(year).sample()
+            monthlyPayment = calculateMonthlyPayment(leftToPay, yearInterest, LAST_YEAR - year)
+            leftToPay = calculateMoneyLeftToPay(leftToPay, yearInterest, LAST_YEAR - year, nextYear - year)
+            strategy.paidReplication += monthlyPayment * (nextYear - year) * 12
+        }
+    }
+
+    private fun StrategyType.updateStrategyState() {
+        val strategy = getStrategy()
+        val strategyState = when (this) {
+            StrategyType.A -> strategyAState
+            StrategyType.B -> strategyBState
+            StrategyType.C -> strategyCState
+        }
+
+        strategyState.strategy = StrategyState(replicationsExecuted, strategy.paidAverage)
+    }
+
+    private fun StrategyType.getStrategy() = when (this) {
+        StrategyType.A -> strategyA
+        StrategyType.B -> strategyB
+        StrategyType.C -> strategyC
+    }
+
     private fun transformYearInterest(yearInterest: Double, yearsToPay: Int): Double {
         return (1 + yearInterest.toPercentage().monthly()).pow(12.0 * yearsToPay)
     }
@@ -150,6 +185,7 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
         const val INITIAL_MORTGAGE_VALUE = 100_000.0
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
+        const val STATE_UPDATE_AFTER = 10_000
     }
 }
 
@@ -157,8 +193,9 @@ class LoanMonteCarlo(replicationsCount: Long) : MonteCarloCore(replicationsCount
  * Class for keeping track of strategy state during simulation.
  */
 class Strategy(
-    val type: StrategyType,
+    type: StrategyType
 ) {
+    val type: StrategyType = type
     var paidReplication: Double = Double.MAX_VALUE
     var paidAverage: Double = Double.MAX_VALUE
     private var paidOverall: Double = 0.0
@@ -173,6 +210,24 @@ class Strategy(
     }
 }
 
+data class StrategyState(
+    val replicationNumber: Long = 0L,
+    val currentValue: Double = 0.0
+)
+
+class StrategyStateObservable {
+    private val listeners = mutableMapOf<String, (StrategyState) -> Unit>()
+
+    var strategy: StrategyState by Delegates.observable(StrategyState()) { _, _, new ->
+        listeners.forEach { it.value.invoke(new) }
+    }
+
+    fun listen(name: String, listener: (StrategyState) -> Unit) = listeners.put(name, listener)
+
+    fun stop(name: String) = listeners.remove(name)
+}
+
+
 /**
  * Type of the strategy as specified in assignment.
  */
@@ -184,7 +239,7 @@ enum class StrategyType {
     /**
      * Fixation years for strategies.
      */
-    val years: List<Int>
+    val fixationYears: List<Int>
         get() = when(this) {
             A -> listOf(LoanMonteCarlo.FIRST_YEAR, 2029, 2032, 2033)
             B -> listOf(LoanMonteCarlo.FIRST_YEAR, 2027, 2030, 2033)
