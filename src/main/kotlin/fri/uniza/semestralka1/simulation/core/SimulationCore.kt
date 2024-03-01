@@ -1,4 +1,4 @@
-package fri.uniza.semestralka1.core
+package fri.uniza.semestralka1.simulation.core
 
 /**
  * Simulation core with important methods [runSimulation], [stopSimulation], [resumeSimulation] and [pauseSimulation].

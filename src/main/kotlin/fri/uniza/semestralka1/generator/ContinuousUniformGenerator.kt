@@ -1,6 +1,6 @@
 package fri.uniza.semestralka1.generator
 
-import fri.uniza.semestralka1.general_utils.isALessOrEqualsToB
+import fri.uniza.semestralka1.general_utils.isAGreaterOrEqualsToB
 import java.util.Random
 
 /**
@@ -38,7 +38,7 @@ class ContinuousUniformGenerator : Generator {
      */
     @Throws(IllegalStateException::class)
     constructor(lowerLimit: Double, higherLimit: Double) {
-        if (isALessOrEqualsToB(lowerLimit, higherLimit)) {
+        if (isAGreaterOrEqualsToB(lowerLimit, higherLimit)) {
             throw IllegalStateException(GeneratorMessage.INTERVAL_EDGES_MSG)
         }
         this.lowerLimit = lowerLimit

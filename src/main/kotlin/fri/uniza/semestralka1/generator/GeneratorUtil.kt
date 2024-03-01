@@ -35,7 +35,7 @@ data class IntervalRandom(
  */
 class GeneratorMessage {
     companion object {
-        const val INTERVAL_EDGES_MSG = "Parameter lowerLimit must be greater than parameter higherLimit !!!"
+        const val INTERVAL_EDGES_MSG = "Parameter lowerLimit must be less than parameter higherLimit !!!"
         const val OVERLAP_MSG = "Intervals for generation can not overlap !!!"
         const val PROBABILITY_MSG = "Cumulative probability has to be 1 !!!"
         const val MIN_MAX_MSG = "Parameter minValue can not be greater than parameter maxValue !!!"

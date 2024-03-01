@@ -1,5 +1,6 @@
 package fri.uniza.semestralka1
 
+import fri.uniza.semestralka1.simulation.core.LoanMonteCarlo
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
@@ -16,5 +17,6 @@ class Semestralka1MonteCarlo : Application() {
 }
 
 fun main() {
-    Application.launch(Semestralka1MonteCarlo::class.java)
+//    Application.launch(Semestralka1MonteCarlo::class.java)
+    LoanMonteCarlo(5_000_000)
 }

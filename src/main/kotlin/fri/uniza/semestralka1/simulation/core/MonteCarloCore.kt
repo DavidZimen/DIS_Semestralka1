@@ -1,16 +1,19 @@
-package fri.uniza.semestralka1.core
+package fri.uniza.semestralka1.simulation.core
 
 /**
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-open class MonteCarloCore() : SimulationCore() {
+open class MonteCarloCore(replicationsCount: Long) : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
      * Base value is 1 000 replications.
      */
-    protected var replicationsCount = Int.MAX_VALUE
+    protected var replicationsCount = replicationsCount
+        private set
+
+    protected var replicationsExecuted = 0L
         private set
 
     /**
@@ -19,44 +22,42 @@ open class MonteCarloCore() : SimulationCore() {
     protected var stopSimulation = false
         private set
 
-    constructor(replicationsCount: Int) : this() {
-        this.replicationsCount = replicationsCount
-    }
 
     /**
      * Method to execute before all replications begin.
      */
-    open fun beforeReplication() {}
+    protected open fun beforeReplication() {}
 
     /**
      * Method to execute before every single replication.
      */
-    open fun beforeReplications() {}
+    protected open fun beforeReplications() {}
 
     /**
      * Logic of the replication.
      */
-    open fun replication() {}
+    protected open fun replication() {}
 
     /**
      * Method to execute after every single replication.
      */
-    open fun afterReplication() {}
+    protected open fun afterReplication() {}
 
     /**
      * Method to execute after all replications are finished.
      */
-    open fun afterReplications() {}
+    protected open fun afterReplications() {}
 
     /**
      * Runs Monte Carlo simulation with users implementation of abstract methods.
      * Overrides [SimulationCore.runSimulation].
      */
-    override fun runSimulation() {
+    final override fun runSimulation() {
         beforeReplications()
         for (i in 0 until replicationsCount) {
             beforeReplication()
             replication()
+            replicationsExecuted++
             afterReplication()
             if (stopSimulation) {
                 break
@@ -69,7 +70,7 @@ open class MonteCarloCore() : SimulationCore() {
      * Stops Monte Carlo simulation.
      * Overrides [SimulationCore.stopSimulation].
      */
-    override fun stopSimulation() {
+    final override fun stopSimulation() {
         stopSimulation = true
     }
 }
