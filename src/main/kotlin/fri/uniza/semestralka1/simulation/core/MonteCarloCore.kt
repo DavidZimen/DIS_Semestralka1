@@ -4,24 +4,32 @@ package fri.uniza.semestralka1.simulation.core
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-open class MonteCarloCore(replicationsCount: Long) : SimulationCore() {
+open class MonteCarloCore() : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
      * Base value is 1 000 replications.
      */
-    protected var replicationsCount = replicationsCount
-        private set
+    var replicationsCount = Long.MAX_VALUE
+        set(value) {
+            if (simulationRunning) {
+                throw IllegalStateException("Simulation is running. Cannot set new replications count !!!")
+            }
+            field = value
+        }
 
-    protected var replicationsExecuted = 0L
+    var replicationsExecuted = 0L
         private set
 
     /**
      * Indication if simulation is stopped by user.
      */
-    protected var stopSimulation = false
+    var simulationRunning = false
         private set
 
+    constructor(replicationsCount: Long): this() {
+        this.replicationsCount = replicationsCount
+    }
 
     /**
      * Method to execute before all replications begin.
@@ -53,17 +61,20 @@ open class MonteCarloCore(replicationsCount: Long) : SimulationCore() {
      * Overrides [SimulationCore.runSimulation].
      */
     final override fun runSimulation() {
+        simulationRunning = true
+        replicationsExecuted = 0
         beforeReplications()
         for (i in 0 until replicationsCount) {
             beforeReplication()
             replication()
             replicationsExecuted++
             afterReplication()
-            if (stopSimulation) {
+            if (!simulationRunning) {
                 break
             }
         }
         afterReplications()
+        simulationRunning = false
     }
 
     /**
@@ -71,6 +82,6 @@ open class MonteCarloCore(replicationsCount: Long) : SimulationCore() {
      * Overrides [SimulationCore.stopSimulation].
      */
     final override fun stopSimulation() {
-        stopSimulation = true
+        simulationRunning = false
     }
 }

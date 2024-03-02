@@ -5,12 +5,28 @@
 
 <?import org.jfree.chart.fx.ChartViewer?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
 <VBox alignment="TOP_CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="fri.uniza.semestralka1.ui.GuiController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <ChartViewer fx:id="chartViewer" prefWidth="600" prefHeight="550" maxWidth="600" maxHeight="550"/>
     <Button text="Start simulation" onAction="#startSimulation"/>
+
+    <HBox alignment="TOP_LEFT" spacing="20.0">
+        <VBox spacing="20.0">
+            <ChartViewer fx:id="chartA" prefWidth="500" prefHeight="450" maxWidth="500" maxHeight="450"/>
+            <Text fx:id="averageA"/>
+        </VBox>
+        <VBox spacing="20.0">
+            <ChartViewer fx:id="chartB" prefWidth="500" prefHeight="450" maxWidth="500" maxHeight="450"/>
+            <Text fx:id="averageB"/>
+        </VBox>
+        <VBox spacing="20.0">
+            <ChartViewer fx:id="chartC" prefWidth="500" prefHeight="450" maxWidth="500" maxHeight="450"/>
+            <Text fx:id="averageC"/>
+        </VBox>
+    </HBox>
 </VBox>

@@ -9,7 +9,7 @@ import kotlin.system.exitProcess
 class Semestralka1MonteCarlo : Application() {
     override fun start(stage: Stage) {
         val fxmlLoader = FXMLLoader(Semestralka1MonteCarlo::class.java.getResource("gui.fxml"))
-        val scene = Scene(fxmlLoader.load(), 1000.0, 800.0)
+        val scene = Scene(fxmlLoader.load(), 1600.0, 800.0)
         stage.title = "Hello!"
         stage.scene = scene
         stage.show()

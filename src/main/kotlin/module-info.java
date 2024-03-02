@@ -6,6 +6,7 @@ module fri.uniza.semestralka1 {
     requires org.jfree.chart.fx;
     requires org.jfree.jfreechart;
     requires java.desktop;
+    requires kotlinx.coroutines.core;
 
 
     opens fri.uniza.semestralka1 to javafx.fxml;
