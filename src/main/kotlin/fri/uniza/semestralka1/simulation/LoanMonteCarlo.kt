@@ -179,6 +179,9 @@ class LoanMonteCarlo() : MonteCarloCore() {
         }
     }
 
+    /**
+     * Updates current state of [StrategyType] with calculated values.
+     */
     private fun StrategyType.updateStrategyState() {
         val strategy = getStrategy()
         val strategyState = when (this) {
@@ -192,12 +195,18 @@ class LoanMonteCarlo() : MonteCarloCore() {
         }
     }
 
+    /**
+     * @return Correct [Strategy] for [StrategyType]
+     */
     private fun StrategyType.getStrategy() = when (this) {
         StrategyType.A -> strategyA
         StrategyType.B -> strategyB
         StrategyType.C -> strategyC
     }
 
+    /**
+     * Calculates partial formula from whole mortgage calculation formula.
+     */
     private fun transformYearInterest(yearInterest: Double, yearsToPay: Int): Double {
         return (1 + yearInterest.toPercentage().monthly()).pow(12.0 * yearsToPay)
     }
@@ -236,6 +245,7 @@ class Strategy(
     }
 
     fun resetForReplications() {
+        paidOverall = 0.0
         paidReplication = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
         paidAverage = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
     }

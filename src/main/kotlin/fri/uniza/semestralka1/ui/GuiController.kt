@@ -76,7 +76,7 @@ class GuiController : Initializable {
     }
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
-        loanSimulationService.setReplicationsCount(5_000_000)
+        loanSimulationService.setReplicationsCount(1_000_000)
         initCharts()
     }
 
