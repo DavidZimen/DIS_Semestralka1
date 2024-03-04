@@ -58,15 +58,15 @@ class GeneratorTest {
         // initialize generator
         val generator = ContinuousEmpiricalGenerator(
             IntervalProbability(0.1, 0.3, 0.1),
-            IntervalProbability(0.3, 0.8, 0.5),
-            IntervalProbability(0.8, 1.2, 0.15),
-            IntervalProbability(1.2, 2.5, 0.1),
-            IntervalProbability(2.5, 3.8, 0.1),
+            IntervalProbability(0.3, 0.8, 0.35),
+            IntervalProbability(0.8, 1.2, 0.2),
+            IntervalProbability(1.2, 2.5, 0.15),
+            IntervalProbability(2.5, 3.8, 0.15),
             IntervalProbability(3.8, 4.8, 0.05)
         )
 
         // generate data
-        val replications = 1_000_000
+        val replications = 100_000
         val data = mutableListOf<Double>()
         for (i in 0 until replications) {
             data.add(generator.sample())

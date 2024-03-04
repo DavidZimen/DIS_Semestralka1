@@ -27,10 +27,6 @@ open class MonteCarloCore() : SimulationCore() {
     var simulationRunning = false
         private set
 
-    constructor(replicationsCount: Long): this() {
-        this.replicationsCount = replicationsCount
-    }
-
     /**
      * Method to execute before all replications begin.
      */
@@ -61,9 +57,9 @@ open class MonteCarloCore() : SimulationCore() {
      * Overrides [SimulationCore.runSimulation].
      */
     final override fun runSimulation() {
+        beforeReplications()
         simulationRunning = true
         replicationsExecuted = 0
-        beforeReplications()
         for (i in 0 until replicationsCount) {
             beforeReplication()
             replication()
