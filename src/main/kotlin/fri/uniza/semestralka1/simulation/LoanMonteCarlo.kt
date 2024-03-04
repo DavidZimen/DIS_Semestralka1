@@ -9,38 +9,19 @@ class LoanMonteCarlo() : MonteCarloCore() {
     /**
      * Best strategy after finishing the
      */
-    var bestStrategy: Strategy? = null
+    var bestStrategy: StrategyType? = null
         private set
 
     /**
-     * Observable for strategy A state during simulation.
+     * [Map] of [Strategy] objects, were [StrategyType] is the [Map.Entry.key].
      */
-    private val strategyAState = StrategyState()
+    private val strategies = mutableMapOf<StrategyType, Strategy>()
 
     /**
-     * Observable for strategy B state during simulation.
+     * [Map] of [StrategyState] objects, were [StrategyType] is the [Map.Entry.key].
+     * Used for providing data to GUI.
      */
-    private val strategyBState = StrategyState()
-
-    /**
-     * Observable for strategy C state during simulation.
-     */
-    private val strategyCState = StrategyState()
-
-    /**
-     * Strategy A.
-     */
-    private val strategyA = Strategy(StrategyType.A)
-
-    /**
-     * Strategy B.
-     */
-    private val strategyB = Strategy(StrategyType.B)
-
-    /**
-     * Strategy C.
-     */
-    private val strategyC = Strategy(StrategyType.C)
+    private val strategiesStates = mutableMapOf<StrategyType, StrategyState>()
 
     /**
      * Map of generators as defined in the assignment.
@@ -54,42 +35,38 @@ class LoanMonteCarlo() : MonteCarloCore() {
     }
 
     //PUBLIC FUNCTIONS
-    fun getStrategyState(type: StrategyType): StrategyState {
-        return when(type) {
-            StrategyType.A -> strategyAState
-            StrategyType.B -> strategyBState
-            StrategyType.C -> strategyCState
-        }
-    }
+    /**
+     * Provides [StrategyState] for declared [type].
+     */
+    fun getStateForType(type: StrategyType) = type.getStrategyState()
 
     // OVERRIDE FUNCTIONS
     override fun beforeReplications() {
+        initializeStrategies()
         initializeGenerators()
-        resetStatistics()
     }
 
     override fun beforeReplication() {
-        StrategyType.values().forEach {
-            it.getStrategy().prepareForReplication()
+        StrategyType.values().forEach { type ->
+            type.getStrategy().prepareForReplication()
         }
     }
 
     override fun replication() {
-        StrategyType.values().forEach {
-            it.calculateStrategy()
+        StrategyType.values().forEach { type ->
+            type.calculateStrategy()
         }
     }
 
     override fun afterReplication() {
-        StrategyType.values().forEach {
-            it.getStrategy().evaluateReplication(replicationsExecuted)
-            it.updateStrategyState()
+        StrategyType.values().forEach { type ->
+            type.getStrategy().evaluateReplication(replicationsExecuted)
+            type.updateStrategyState()
         }
     }
 
     override fun afterReplications() {
-        bestStrategy = if (strategyA.paidAverage < strategyB.paidAverage) strategyA else strategyB
-        bestStrategy = if (bestStrategy!!.paidAverage < strategyC.paidAverage) bestStrategy else strategyC
+        bestStrategy = strategies.minByOrNull { it.value.paidAverage }?.key
     }
 
     /**
@@ -149,13 +126,6 @@ class LoanMonteCarlo() : MonteCarloCore() {
         return leftToPay * (numerator / denominator)
     }
 
-    private fun resetStatistics() {
-        bestStrategy = null
-        StrategyType.values().forEach {
-            it.getStrategy().resetForReplications()
-        }
-    }
-
     /**
      * @return [Generator] for provided [year].
      */
@@ -183,15 +153,21 @@ class LoanMonteCarlo() : MonteCarloCore() {
     }
 
     /**
+     * Initializes [Strategy] into [strategies] for each enum values of [StrategyType].
+     */
+    private fun initializeStrategies() {
+        StrategyType.values().forEach { type ->
+            strategies[type] = Strategy()
+            strategiesStates[type] = StrategyState()
+        }
+    }
+
+    /**
      * Updates current state of [StrategyType] with calculated values.
      */
     private fun StrategyType.updateStrategyState() {
         val strategy = getStrategy()
-        val strategyState = when (this) {
-            StrategyType.A -> strategyAState
-            StrategyType.B -> strategyBState
-            StrategyType.C -> strategyCState
-        }
+        val strategyState = getStrategyState()
         with(strategyState) {
             replicationNumber = replicationsExecuted
             currentValue = strategy.paidAverage
@@ -201,11 +177,12 @@ class LoanMonteCarlo() : MonteCarloCore() {
     /**
      * @return Correct [Strategy] for [StrategyType]
      */
-    private fun StrategyType.getStrategy() = when (this) {
-        StrategyType.A -> strategyA
-        StrategyType.B -> strategyB
-        StrategyType.C -> strategyC
-    }
+    private fun StrategyType.getStrategy() = strategies[this]!!
+
+    /**
+     * @return Correct [StrategyState] for [StrategyType]
+     */
+    private fun StrategyType.getStrategyState() = strategiesStates[this]!!
 
     /**
      * Calculates partial formula from whole mortgage calculation formula.
@@ -234,10 +211,7 @@ class LoanMonteCarlo() : MonteCarloCore() {
 /**
  * Class for keeping track of strategy state during simulation.
  */
-class Strategy(
-    type: StrategyType
-) {
-    val type: StrategyType = type
+class Strategy {
     var paidReplication: Double = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
     var paidAverage: Double = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
     private var paidOverall: Double = 0.0
@@ -246,26 +220,19 @@ class Strategy(
         paidReplication = 0.0
     }
 
-    fun resetForReplications() {
-        paidOverall = 0.0
-        paidReplication = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
-        paidAverage = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
-    }
-
     fun evaluateReplication(replicationsCompleted: Long) {
         paidOverall += paidReplication
         paidAverage = paidOverall / replicationsCompleted
     }
 }
 
-class StrategyState(
+/**
+ * Strategy states for providing data for graphs.
+ */
+data class StrategyState(
     var replicationNumber: Long = 0L,
     var currentValue: Double = 0.0
-) {
-    override fun toString(): String {
-        return "State - replication: $replicationNumber, paid: $currentValue"
-    }
-}
+)
 
 /**
  * Type of the strategy as specified in assignment.

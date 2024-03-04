@@ -86,7 +86,7 @@ class GuiController : Initializable {
                 }
                 delay(150)
             }
-            bestStrategy.text = "Best strategy is ${loanSimulationService.result.type}"
+            bestStrategy.text = "Best strategy is ${loanSimulationService.result}"
         }
     }
 

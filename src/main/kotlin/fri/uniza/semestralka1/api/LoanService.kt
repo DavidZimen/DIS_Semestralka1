@@ -14,7 +14,7 @@ class LoanService {
     val running: Boolean
         get() = monteCarlo.simulationRunning
 
-    val result: Strategy
+    val result: StrategyType
         get() = monteCarlo.bestStrategy!!
 
     @Throws(IllegalStateException::class)
@@ -28,5 +28,5 @@ class LoanService {
 
     fun stopSimulation() = monteCarlo.stopSimulation()
 
-    fun checkForStateUpdates(strategyType: StrategyType) = monteCarlo.getStrategyState(strategyType)
+    fun checkForStateUpdates(strategyType: StrategyType) = monteCarlo.getStateForType(strategyType)
 }
