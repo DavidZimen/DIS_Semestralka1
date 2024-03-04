@@ -4,24 +4,12 @@ import fri.uniza.semestralka1.generator.*
 import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
 
-class MortgageMonteCarlo() : MonteCarloCore() {
-
-    /**
-     * Best strategy after finishing the
-     */
-    var bestStrategy: StrategyType? = null
-        private set
+class MortgageMonteCarlo() : MonteCarloCore<SimulationState>() {
 
     /**
      * [Map] of [Strategy] objects, were [StrategyType] is the [Map.Entry.key].
      */
     private val strategies = mutableMapOf<StrategyType, Strategy>()
-
-    /**
-     * [Map] of [StrategyState] objects, were [StrategyType] is the [Map.Entry.key].
-     * Used for providing data to GUI.
-     */
-    private val strategiesStates = mutableMapOf<StrategyType, StrategyState>()
 
     /**
      * Map of generators as defined in the assignment.
@@ -32,16 +20,6 @@ class MortgageMonteCarlo() : MonteCarloCore() {
 
     constructor(replicationsCount: Long) : this() {
         this.replicationsCount = replicationsCount
-    }
-
-    //PUBLIC FUNCTIONS
-    /**
-     * Provides [StrategyState] for declared [type].
-     */
-    fun getStateForType(type: StrategyType): StrategyState {
-        return with(type.getStrategy()) {
-            StrategyState(replicationsExecuted, paidAverage)
-        }
     }
 
     // OVERRIDE FUNCTIONS
@@ -65,12 +43,15 @@ class MortgageMonteCarlo() : MonteCarloCore() {
     override fun afterReplication() {
         StrategyType.values().forEach { type ->
             type.getStrategy().evaluateReplication(replicationsExecuted)
-//            type.updateStrategyState()
+        }
+
+        if (replicationsExecuted.mod(EMIT_STATE_AFTER) == 0) {
+            updateState()
         }
     }
 
     override fun afterReplications() {
-        bestStrategy = strategies.minByOrNull { it.value.paidAverage }?.key
+        updateState()
     }
 
     /**
@@ -162,31 +143,24 @@ class MortgageMonteCarlo() : MonteCarloCore() {
     private fun initializeStrategies() {
         StrategyType.values().forEach { type ->
             strategies[type] = Strategy()
-            strategiesStates[type] = StrategyState()
         }
     }
 
-    /**
-     * Updates current state of [StrategyType] with calculated values.
-     */
-    private fun StrategyType.updateStrategyState() {
-        val strategy = getStrategy()
-        val strategyState = getStrategyState()
-        with(strategyState) {
-            replicationNumber = replicationsExecuted
-            currentValue = strategy.paidAverage
+    private fun updateState() {
+        val map = mutableMapOf<StrategyType, Double>()
+        val bestStrategy = if (replicationsCount == replicationsExecuted || !simulationRunning) {
+            strategies.minByOrNull { it.value.paidAverage }?.key
+        } else null
+        strategies.forEach { (key, strategy) ->
+            map[key] = strategy.paidAverage
         }
+        state.next(SimulationState(replicationsExecuted, map, bestStrategy))
     }
 
     /**
      * @return Correct [Strategy] for [StrategyType]
      */
     private fun StrategyType.getStrategy() = strategies[this]!!
-
-    /**
-     * @return Correct [StrategyState] for [StrategyType]
-     */
-    private fun StrategyType.getStrategyState() = strategiesStates[this]!!
 
     /**
      * Calculates partial formula from whole mortgage calculation formula.
@@ -209,6 +183,7 @@ class MortgageMonteCarlo() : MonteCarloCore() {
         const val INITIAL_MORTGAGE_VALUE = 100_000.0
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
+        const val EMIT_STATE_AFTER = 15_000
     }
 }
 
@@ -231,11 +206,12 @@ class Strategy {
 }
 
 /**
- * Strategy states for providing data for graphs.
+ * Holds current state of the [MortgageMonteCarlo] simulation.
  */
-data class StrategyState(
-    var replicationNumber: Long = 0L,
-    var currentValue: Double = 0.0
+class SimulationState(
+    val replicationNumber: Long,
+    val currentAverage: Map<StrategyType, Double>,
+    val bestStrategyType: StrategyType? = null
 )
 
 /**

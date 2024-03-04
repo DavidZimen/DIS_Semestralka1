@@ -7,7 +7,8 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.TextField
 import javafx.scene.text.Text
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.NumberAxis
@@ -65,28 +66,21 @@ class GuiController : Initializable {
             loanSimulationService.runSimulation()
         }
 
-        GlobalScope.launch {
-            while (!loanSimulationService.running) {
-                continue
-            }
+        loanSimulationService.subscribeStateChanges { newState ->
+            SwingUtilities.invokeLater {
+                with(newState!!) {
+                    seriesA.add(replicationNumber, currentAverage[StrategyType.A])
+                    seriesB.add(replicationNumber, currentAverage[StrategyType.B])
+                    seriesC.add(replicationNumber, currentAverage[StrategyType.C])
+                    averageA.text = "Average: ${currentAverage[StrategyType.A]}"
+                    averageB.text = "Average: ${currentAverage[StrategyType.B]}"
+                    averageC.text = "Average: ${currentAverage[StrategyType.C]}"
 
-            while (loanSimulationService.running) {
-                val stateA = loanSimulationService.checkForStateUpdates(StrategyType.A)
-                val stateB = loanSimulationService.checkForStateUpdates(StrategyType.B)
-                val stateC = loanSimulationService.checkForStateUpdates(StrategyType.C)
-                if (stateA.replicationNumber > 10_000) {
-                    SwingUtilities.invokeLater {
-                        seriesA.add(stateA.replicationNumber, stateA.currentValue)
-                        seriesB.add(stateB.replicationNumber, stateB.currentValue)
-                        seriesC.add(stateC.replicationNumber, stateC.currentValue)
-                        averageA.text = "Average: ${stateA.currentValue}"
-                        averageB.text = "Average: ${stateB.currentValue}"
-                        averageC.text = "Average: ${stateC.currentValue}"
+                    if (bestStrategyType != null) {
+                        bestStrategy.text = "Best strategy is $bestStrategyType"
                     }
                 }
-                delay(150)
             }
-            bestStrategy.text = "Best strategy is ${loanSimulationService.result}"
         }
     }
 
@@ -99,6 +93,7 @@ class GuiController : Initializable {
         seriesA.clear()
         seriesB.clear()
         seriesC.clear()
+        bestStrategy.text = ""
     }
 
     private fun initCharts() {

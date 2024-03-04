@@ -1,10 +1,12 @@
 package fri.uniza.semestralka1.simulation.core
 
+import fri.uniza.semestralka1.observer.Observable
+
 /**
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-open class MonteCarloCore() : SimulationCore() {
+abstract class MonteCarloCore<T> : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
@@ -22,9 +24,14 @@ open class MonteCarloCore() : SimulationCore() {
         private set
 
     /**
+     * Object for storing current state with possibility to subscribe to change emitions.
+     */
+    val state = Observable<T>()
+
+    /**
      * Indication if simulation is stopped by user.
      */
-    var simulationRunning = false
+    protected var simulationRunning = false
         private set
 
     /**
