@@ -65,11 +65,11 @@ class GuiController : Initializable {
             loanSimulationService.runSimulation()
         }
 
-        while (!loanSimulationService.running) {
-            continue
-        }
-
         GlobalScope.launch {
+            while (!loanSimulationService.running) {
+                continue
+            }
+
             while (loanSimulationService.running) {
                 val stateA = loanSimulationService.checkForStateUpdates(StrategyType.A)
                 val stateB = loanSimulationService.checkForStateUpdates(StrategyType.B)

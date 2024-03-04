@@ -1,15 +1,13 @@
 package fri.uniza.semestralka1.api
 
-import fri.uniza.semestralka1.simulation.LoanMonteCarlo
-import fri.uniza.semestralka1.simulation.Strategy
-import fri.uniza.semestralka1.simulation.StrategyState
+import fri.uniza.semestralka1.simulation.MortgageMonteCarlo
 import fri.uniza.semestralka1.simulation.StrategyType
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class LoanService {
 
-    private val monteCarlo: LoanMonteCarlo = LoanMonteCarlo()
+    private val monteCarlo: MortgageMonteCarlo = MortgageMonteCarlo()
 
     val running: Boolean
         get() = monteCarlo.simulationRunning

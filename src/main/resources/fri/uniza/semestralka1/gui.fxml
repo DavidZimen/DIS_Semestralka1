@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.jfree.chart.fx.ChartViewer?>
 
-<VBox alignment="TOP_CENTER" minHeight="1080.0" minWidth="1920.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fri.uniza.semestralka1.ui.GuiController">
+<VBox alignment="TOP_CENTER" minHeight="1000.0" minWidth="1920.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fri.uniza.semestralka1.ui.GuiController">
     <padding>
         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
     </padding>

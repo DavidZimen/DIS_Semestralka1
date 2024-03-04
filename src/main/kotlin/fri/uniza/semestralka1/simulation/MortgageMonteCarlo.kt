@@ -4,7 +4,7 @@ import fri.uniza.semestralka1.generator.*
 import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
 
-class LoanMonteCarlo() : MonteCarloCore() {
+class MortgageMonteCarlo() : MonteCarloCore() {
 
     /**
      * Best strategy after finishing the
@@ -38,7 +38,11 @@ class LoanMonteCarlo() : MonteCarloCore() {
     /**
      * Provides [StrategyState] for declared [type].
      */
-    fun getStateForType(type: StrategyType) = type.getStrategyState()
+    fun getStateForType(type: StrategyType): StrategyState {
+        return with(type.getStrategy()) {
+            StrategyState(replicationsExecuted, paidAverage)
+        }
+    }
 
     // OVERRIDE FUNCTIONS
     override fun beforeReplications() {
@@ -61,7 +65,7 @@ class LoanMonteCarlo() : MonteCarloCore() {
     override fun afterReplication() {
         StrategyType.values().forEach { type ->
             type.getStrategy().evaluateReplication(replicationsExecuted)
-            type.updateStrategyState()
+//            type.updateStrategyState()
         }
     }
 
@@ -212,8 +216,8 @@ class LoanMonteCarlo() : MonteCarloCore() {
  * Class for keeping track of strategy state during simulation.
  */
 class Strategy {
-    var paidReplication: Double = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
-    var paidAverage: Double = LoanMonteCarlo.INITIAL_MORTGAGE_VALUE
+    var paidReplication: Double = MortgageMonteCarlo.INITIAL_MORTGAGE_VALUE
+    var paidAverage: Double = MortgageMonteCarlo.INITIAL_MORTGAGE_VALUE
     private var paidOverall: Double = 0.0
 
     fun prepareForReplication() {
@@ -247,8 +251,8 @@ enum class StrategyType {
      */
     val fixationYears: List<Int>
         get() = when(this) {
-            A -> listOf(LoanMonteCarlo.FIRST_YEAR, 2029, 2032, 2033)
-            B -> listOf(LoanMonteCarlo.FIRST_YEAR, 2027, 2030, 2033)
-            C -> listOf(LoanMonteCarlo.FIRST_YEAR, 2027, 2028, 2033)
+            A -> listOf(MortgageMonteCarlo.FIRST_YEAR, 2029, 2032, 2033)
+            B -> listOf(MortgageMonteCarlo.FIRST_YEAR, 2027, 2030, 2033)
+            C -> listOf(MortgageMonteCarlo.FIRST_YEAR, 2027, 2028, 2033)
         }
 }
