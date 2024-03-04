@@ -1,6 +1,7 @@
 package fri.uniza.semestralka1.api
 
 import fri.uniza.semestralka1.simulation.LoanMonteCarlo
+import fri.uniza.semestralka1.simulation.Strategy
 import fri.uniza.semestralka1.simulation.StrategyState
 import fri.uniza.semestralka1.simulation.StrategyType
 import kotlinx.coroutines.coroutineScope
@@ -12,6 +13,9 @@ class LoanService {
 
     val running: Boolean
         get() = monteCarlo.simulationRunning
+
+    val result: Strategy
+        get() = monteCarlo.bestStrategy!!
 
     @Throws(IllegalStateException::class)
     fun setReplicationsCount(replicationsCount: Long) {

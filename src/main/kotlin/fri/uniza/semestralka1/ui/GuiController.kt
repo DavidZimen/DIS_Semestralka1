@@ -1,9 +1,11 @@
 package fri.uniza.semestralka1.ui
 
 import fri.uniza.semestralka1.api.LoanService
+import fri.uniza.semestralka1.general_utils.INTEGER_REGEX
 import fri.uniza.semestralka1.simulation.StrategyType
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.scene.control.TextField
 import javafx.scene.text.Text
 import kotlinx.coroutines.*
 import org.jfree.chart.ChartFactory
@@ -44,15 +46,27 @@ class GuiController : Initializable {
     private lateinit var averageC: Text
 
     @FXML
-    fun startSimulation() {
+    private lateinit var bestStrategy: Text
+
+    @FXML
+    private lateinit var replications: TextField
+
+    override fun initialize(p0: URL?, p1: ResourceBundle?) {
         initCharts()
+        replications.allowOnlyInt()
+    }
+
+    @FXML
+    fun onStart() {
+        resetCharts()
+        loanSimulationService.setReplicationsCount(replications.text.toReplicationsCount())
 
         GlobalScope.launch {
             loanSimulationService.runSimulation()
         }
 
         while (!loanSimulationService.running) {
-            print("")
+            continue
         }
 
         GlobalScope.launch {
@@ -60,7 +74,7 @@ class GuiController : Initializable {
                 val stateA = loanSimulationService.checkForStateUpdates(StrategyType.A)
                 val stateB = loanSimulationService.checkForStateUpdates(StrategyType.B)
                 val stateC = loanSimulationService.checkForStateUpdates(StrategyType.C)
-                if (stateA.replicationNumber > 250) {
+                if (stateA.replicationNumber > 10_000) {
                     SwingUtilities.invokeLater {
                         seriesA.add(stateA.replicationNumber, stateA.currentValue)
                         seriesB.add(stateB.replicationNumber, stateB.currentValue)
@@ -70,14 +84,21 @@ class GuiController : Initializable {
                         averageC.text = "Average: ${stateC.currentValue}"
                     }
                 }
-                delay(200)
+                delay(150)
             }
+            bestStrategy.text = "Best strategy is ${loanSimulationService.result.type}"
         }
     }
 
-    override fun initialize(p0: URL?, p1: ResourceBundle?) {
-        loanSimulationService.setReplicationsCount(1_000_000)
-        initCharts()
+    @FXML
+    fun onStop() {
+        loanSimulationService.stopSimulation()
+    }
+
+    private fun resetCharts() {
+        seriesA.clear()
+        seriesB.clear()
+        seriesC.clear()
     }
 
     private fun initCharts() {
@@ -108,11 +129,27 @@ class GuiController : Initializable {
         )
 
         // Get the plot and set auto range for the range axis
-        val rangeAxis = chart.xyPlot.rangeAxis as NumberAxis
-        rangeAxis.autoRangeIncludesZero = false
-        rangeAxis.isAutoRange = true
+        val yAxis = chart.xyPlot.rangeAxis as NumberAxis
+        yAxis.autoRangeIncludesZero = false
+        yAxis.isAutoRange = true
 
         chart.plot.backgroundPaint = Color.WHITE
         return chart
+    }
+
+    private fun String.toReplicationsCount(): Long {
+        return if (isNullOrBlank()) {
+            Long.MAX_VALUE
+        } else {
+            toLong()
+        }
+    }
+
+    private fun TextField.allowOnlyInt() {
+        textProperty().addListener { _, _, newValue ->
+            if (!newValue.matches(INTEGER_REGEX)) {
+                text = newValue.replace(Regex("[^0-9]"), "")
+            }
+        }
     }
 }

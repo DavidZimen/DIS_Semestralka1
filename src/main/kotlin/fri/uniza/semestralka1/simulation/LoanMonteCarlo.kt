@@ -7,6 +7,12 @@ import kotlin.math.pow
 class LoanMonteCarlo() : MonteCarloCore() {
 
     /**
+     * Best strategy after finishing the
+     */
+    var bestStrategy: Strategy? = null
+        private set
+
+    /**
      * Observable for strategy A state during simulation.
      */
     private val strategyAState = StrategyState()
@@ -82,12 +88,27 @@ class LoanMonteCarlo() : MonteCarloCore() {
     }
 
     override fun afterReplications() {
-        var best = if (strategyA.paidAverage < strategyB.paidAverage) strategyA else strategyB
-        best = if (best.paidAverage < strategyC.paidAverage) best else strategyC
-        println("Best strategy is ${best.type} with average paid ${best.paidAverage}€")
-        println("${strategyA.type}: ${strategyA.paidAverage}€")
-        println("${strategyB.type}: ${strategyB.paidAverage}€")
-        println("${strategyC.type}: ${strategyC.paidAverage}€")
+        bestStrategy = if (strategyA.paidAverage < strategyB.paidAverage) strategyA else strategyB
+        bestStrategy = if (bestStrategy!!.paidAverage < strategyC.paidAverage) bestStrategy else strategyC
+    }
+
+    /**
+     * Calculates value of [StrategyType] for one replication.
+     */
+    private fun StrategyType.calculateStrategy() {
+        val strategy = getStrategy()
+
+        var leftToPay = INITIAL_MORTGAGE_VALUE
+        var yearInterest: Double
+        var monthlyPayment: Double
+
+        // always operates with 2 values - also necessary to pair last() with LAST_YEAR
+        for ((year, nextYear) in fixationYears.zipWithNext() + (fixationYears.last() to LAST_YEAR)) {
+            yearInterest = getGenerator(year).sample()
+            monthlyPayment = calculateMonthlyPayment(leftToPay, yearInterest, LAST_YEAR - year)
+            leftToPay = calculateMoneyLeftToPay(leftToPay, yearInterest, LAST_YEAR - year, nextYear - year)
+            strategy.paidReplication += monthlyPayment * (nextYear - year) * 12
+        }
     }
 
     // PRIVATE FUNCTIONS
@@ -129,6 +150,7 @@ class LoanMonteCarlo() : MonteCarloCore() {
     }
 
     private fun resetStatistics() {
+        bestStrategy = null
         StrategyType.values().forEach {
             it.getStrategy().resetForReplications()
         }
@@ -158,25 +180,6 @@ class LoanMonteCarlo() : MonteCarloCore() {
         )
         generators[2030] = DeterministicGenerator(1.3)
         generators[2032] = ContinuousUniformGenerator(0.9, 2.2)
-    }
-
-    /**
-     * Calculates value of [StrategyType] for one replication.
-     */
-    private fun StrategyType.calculateStrategy() {
-        val strategy = getStrategy()
-
-        var leftToPay = INITIAL_MORTGAGE_VALUE
-        var yearInterest: Double
-        var monthlyPayment: Double
-
-        // always operates with 2 values - also necessary to pair last() with LAST_YEAR
-        for ((year, nextYear) in fixationYears.zipWithNext() + (fixationYears.last() to LAST_YEAR)) {
-            yearInterest = getGenerator(year).sample()
-            monthlyPayment = calculateMonthlyPayment(leftToPay, yearInterest, LAST_YEAR - year)
-            leftToPay = calculateMoneyLeftToPay(leftToPay, yearInterest, LAST_YEAR - year, nextYear - year)
-            strategy.paidReplication += monthlyPayment * (nextYear - year) * 12
-        }
     }
 
     /**
@@ -225,7 +228,6 @@ class LoanMonteCarlo() : MonteCarloCore() {
         const val INITIAL_MORTGAGE_VALUE = 100_000.0
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
-        const val STATE_UPDATE_AFTER_MILIS = 200L
     }
 }
 
