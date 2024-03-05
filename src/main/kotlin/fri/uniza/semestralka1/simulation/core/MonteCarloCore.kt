@@ -10,7 +10,7 @@ open class MonteCarloCore<T> : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.
-     * Base value is 1 000 replications.
+     * Base value is [Long.MAX_VALUE] replications.
      */
     var replicationsCount = Long.MAX_VALUE
         set(value) {
