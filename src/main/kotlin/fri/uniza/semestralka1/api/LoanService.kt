@@ -17,7 +17,6 @@ class LoanService {
 
     suspend fun runSimulation() = coroutineScope {
         launch {
-            println("Monte carlo running on: ${Thread.currentThread().name}")
             monteCarlo.runSimulation()
         }
     }

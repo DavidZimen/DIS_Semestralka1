@@ -6,7 +6,7 @@ import fri.uniza.semestralka1.observer.Observable
  * Abstract core of the Monte Carlo simulation type.
  * @author David Zimen
  */
-abstract class MonteCarloCore<T> : SimulationCore() {
+open class MonteCarloCore<T> : SimulationCore() {
 
     /**
      * Number of replications to be done in 1 simulation run.

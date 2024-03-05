@@ -45,7 +45,7 @@ class MortgageMonteCarlo() : MonteCarloCore<SimulationState>() {
             type.getStrategy().evaluateReplication(replicationsExecuted)
         }
 
-        if (replicationsExecuted.mod(EMIT_STATE_AFTER) == 0) {
+        if (replicationsExecuted > FIRST_EMIT_AFTER && replicationsExecuted.mod(EMIT_STATE_AFTER) == 0) {
             updateState()
         }
     }
@@ -183,7 +183,8 @@ class MortgageMonteCarlo() : MonteCarloCore<SimulationState>() {
         const val INITIAL_MORTGAGE_VALUE = 100_000.0
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
-        const val EMIT_STATE_AFTER = 15_000
+        const val FIRST_EMIT_AFTER = 1_000_000
+        const val EMIT_STATE_AFTER = 10_000
     }
 }
 
