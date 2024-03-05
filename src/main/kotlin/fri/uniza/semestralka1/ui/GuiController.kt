@@ -66,14 +66,36 @@ class GuiController : Initializable {
             loanSimulationService.runSimulation()
         }
 
-        loanSimulationService.subscribeStateChanges { newState ->
+        loanSimulationService.subscribeStateChanges("state A") { newState ->
             SwingUtilities.invokeLater {
                 with(newState!!) {
                     seriesA.add(replicationNumber, currentAverage[StrategyType.A])
-                    seriesB.add(replicationNumber, currentAverage[StrategyType.B])
-                    seriesC.add(replicationNumber, currentAverage[StrategyType.C])
                     averageA.text = "Average: ${currentAverage[StrategyType.A]}"
+
+                    if (bestStrategyType != null) {
+                        bestStrategy.text = "Best strategy is $bestStrategyType"
+                    }
+                }
+            }
+        }
+
+        loanSimulationService.subscribeStateChanges("state B") { newState ->
+            SwingUtilities.invokeLater {
+                with(newState!!) {
+                    seriesB.add(replicationNumber, currentAverage[StrategyType.B])
                     averageB.text = "Average: ${currentAverage[StrategyType.B]}"
+
+                    if (bestStrategyType != null) {
+                        bestStrategy.text = "Best strategy is $bestStrategyType"
+                    }
+                }
+            }
+        }
+
+        loanSimulationService.subscribeStateChanges("state C") { newState ->
+            SwingUtilities.invokeLater {
+                with(newState!!) {
+                    seriesC.add(replicationNumber, currentAverage[StrategyType.C])
                     averageC.text = "Average: ${currentAverage[StrategyType.C]}"
 
                     if (bestStrategyType != null) {

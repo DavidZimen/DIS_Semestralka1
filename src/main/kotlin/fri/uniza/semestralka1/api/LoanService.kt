@@ -23,7 +23,7 @@ class LoanService {
 
     fun stopSimulation() = monteCarlo.stopSimulation()
 
-    fun subscribeStateChanges(observer: Observer<SimulationState>) {
-        monteCarlo.state.subscribe(this::class.simpleName ?: "mortgage" , observer)
+    fun subscribeStateChanges(name: String, observer: Observer<SimulationState>) {
+        monteCarlo.state.subscribe(name , observer)
     }
 }
