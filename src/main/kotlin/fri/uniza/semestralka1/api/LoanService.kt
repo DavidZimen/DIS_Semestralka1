@@ -2,11 +2,10 @@ package fri.uniza.semestralka1.api
 
 import fri.uniza.semestralka1.observer.Observer
 import fri.uniza.semestralka1.simulation.MortgageMonteCarlo
-import fri.uniza.semestralka1.simulation.SimulationState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class LoanService {
+class LoanService private constructor() {
 
     private val monteCarlo: MortgageMonteCarlo = MortgageMonteCarlo()
 
@@ -23,7 +22,13 @@ class LoanService {
 
     fun stopSimulation() = monteCarlo.stopSimulation()
 
-    fun subscribeStateChanges(name: String, observer: Observer<SimulationState>) {
+    fun subscribeStateChanges(name: String, observer: Observer<Any>) {
         monteCarlo.state.subscribe(name , observer)
+    }
+
+    companion object {
+        val instance: LoanService by lazy {
+            LoanService()
+        }
     }
 }

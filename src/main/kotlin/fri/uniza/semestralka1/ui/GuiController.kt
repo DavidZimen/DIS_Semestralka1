@@ -2,6 +2,7 @@ package fri.uniza.semestralka1.ui
 
 import fri.uniza.semestralka1.api.LoanService
 import fri.uniza.semestralka1.general_utils.INTEGER_REGEX
+import fri.uniza.semestralka1.simulation.SimulationState
 import fri.uniza.semestralka1.simulation.StrategyType
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
@@ -28,7 +29,7 @@ class GuiController : Initializable {
     private var seriesA = XYSeries("Strategia A")
     private var seriesB = XYSeries("Strategia B")
     private var seriesC = XYSeries("Strategia C")
-    private val loanSimulationService = LoanService()
+    private val loanSimulationService = LoanService.instance
 
     @FXML
     private lateinit var chartA: ChartViewer
@@ -70,7 +71,7 @@ class GuiController : Initializable {
 
         loanSimulationService.subscribeStateChanges("state A") { newState ->
             SwingUtilities.invokeLater {
-                with(newState!!) {
+                with(newState!! as SimulationState) {
                     seriesA.add(replicationNumber, currentAverage[StrategyType.A])
                     averageA.text = "Average: ${currentAverage[StrategyType.A]}"
 
@@ -83,7 +84,7 @@ class GuiController : Initializable {
 
         loanSimulationService.subscribeStateChanges("state B") { newState ->
             SwingUtilities.invokeLater {
-                with(newState!!) {
+                with(newState!! as SimulationState) {
                     seriesB.add(replicationNumber, currentAverage[StrategyType.B])
                     averageB.text = "Average: ${currentAverage[StrategyType.B]}"
 
@@ -96,7 +97,7 @@ class GuiController : Initializable {
 
         loanSimulationService.subscribeStateChanges("state C") { newState ->
             SwingUtilities.invokeLater {
-                with(newState!!) {
+                with(newState!! as SimulationState) {
                     seriesC.add(replicationNumber, currentAverage[StrategyType.C])
                     averageC.text = "Average: ${currentAverage[StrategyType.C]}"
 

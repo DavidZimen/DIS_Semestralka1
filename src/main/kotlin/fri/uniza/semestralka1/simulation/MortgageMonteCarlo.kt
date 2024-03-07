@@ -4,7 +4,7 @@ import fri.uniza.semestralka1.generator.*
 import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
 
-class MortgageMonteCarlo() : MonteCarloCore<SimulationState>() {
+class MortgageMonteCarlo() : MonteCarloCore() {
 
     /**
      * [Map] of [Strategy] objects, were [StrategyType] is the [Map.Entry.key].
@@ -187,7 +187,7 @@ class MortgageMonteCarlo() : MonteCarloCore<SimulationState>() {
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
         const val FIRST_EMIT_AFTER = 1_000_000
-        const val EMIT_STATE_AFTER = 100_000
+        const val EMIT_STATE_AFTER = 25_000
     }
 }
 
