@@ -66,7 +66,7 @@ class GeneratorTest {
         )
 
         // generate data
-        val replications = 100_000
+        val replications = 5_000_000
         val data = mutableListOf<Double>()
         for (i in 0 until replications) {
             data.add(generator.sample())

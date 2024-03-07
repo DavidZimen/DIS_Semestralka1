@@ -13,8 +13,10 @@ import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.NumberAxis
 import org.jfree.chart.fx.ChartViewer
+import org.jfree.chart.plot.XYPlot
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
+import java.awt.BasicStroke
 import java.awt.Color
 import java.net.URL
 import java.util.*
@@ -111,6 +113,14 @@ class GuiController : Initializable {
         loanSimulationService.stopSimulation()
     }
 
+    @FXML
+    fun onCut() {
+        val removeLastIndex = (seriesA.itemCount * ITEMS_CUT_PERCENTAGE).toInt() - 1
+        seriesA.delete(0, removeLastIndex)
+        seriesB.delete(0, removeLastIndex)
+        seriesC.delete(0, removeLastIndex)
+    }
+
     private fun resetCharts() {
         seriesA.clear()
         seriesB.clear()
@@ -134,6 +144,11 @@ class GuiController : Initializable {
             StrategyType.B -> seriesB
             StrategyType.C -> seriesC
         }
+        val color = when(strategy) {
+            StrategyType.A -> Color.RED
+            StrategyType.B -> Color.BLUE
+            StrategyType.C -> Color.GREEN
+        }
         series.clear()
         dataset.addSeries(series)
 
@@ -145,12 +160,16 @@ class GuiController : Initializable {
 
         )
 
-        // Get the plot and set auto range for the range axis
+        //auto range for the y-axis
         val yAxis = chart.xyPlot.rangeAxis as NumberAxis
         yAxis.autoRangeIncludesZero = false
         yAxis.isAutoRange = true
 
-        chart.plot.backgroundPaint = Color.WHITE
+        with(chart.plot as XYPlot) {
+            backgroundPaint = Color.WHITE
+            renderer.setSeriesStroke(0, BasicStroke(1.5f))
+            renderer.setSeriesPaint(0, color)
+        }
         return chart
     }
 
@@ -168,5 +187,9 @@ class GuiController : Initializable {
                 text = newValue.replace(Regex("[^0-9]"), "")
             }
         }
+    }
+
+    companion object {
+        private const val ITEMS_CUT_PERCENTAGE = 0.1
     }
 }

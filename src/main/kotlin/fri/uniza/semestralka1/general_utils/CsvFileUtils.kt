@@ -13,7 +13,7 @@ fun writeToCsv(fileName: String, data: List<Double>) {
     try {
         BufferedWriter(FileWriter(fileName)).use { writer ->
             for (value in data) {
-                writer.write(value.toString())
+                writer.write(value.toString().replace(".", ","))
                 writer.newLine()
             }
             println("Data has been written to $fileName")
