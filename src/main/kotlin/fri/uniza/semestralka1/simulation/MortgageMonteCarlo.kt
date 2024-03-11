@@ -176,8 +176,8 @@ class MortgageMonteCarlo(private val strategyType: StrategyType) : MonteCarloCor
     companion object {
         const val FIRST_YEAR = 2024
         const val LAST_YEAR = 2034
-        const val FIRST_EMIT_AFTER = 1_000_000
-        const val EMIT_STATE_AFTER = 25_000
+        const val FIRST_EMIT_AFTER = 500_000
+        const val EMIT_STATE_AFTER = 50_000
     }
 }
 
