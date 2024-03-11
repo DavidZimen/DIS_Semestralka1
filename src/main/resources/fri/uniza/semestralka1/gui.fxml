@@ -25,6 +25,24 @@
                </TextField>
             </children>
          </VBox>
+
+         <VBox prefHeight="47.0" prefWidth="210.0">
+            <children>
+               <Label text="Mortgage value:">
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+               </Label>
+               <TextField fx:id="mortgageValue" prefHeight="30.0" prefWidth="194.0" text="100000">
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+               </TextField>
+            </children>
+            <FlowPane.margin>
+               <Insets left="25.0" />
+            </FlowPane.margin>
+         </VBox>
       
           <Button onAction="#onStart" prefWidth="115.0" text="Start simulation">
             <font>
@@ -50,14 +68,6 @@
                <Insets left="25.0" top="20.0" />
             </FlowPane.margin>
          </Button>
-         <Text fx:id="bestStrategy">
-            <font>
-               <Font name="System Bold" size="28.0" />
-            </font>
-            <FlowPane.margin>
-               <Insets left="350.0" />
-            </FlowPane.margin>
-         </Text>
       </children>
    </FlowPane>
    <HBox prefHeight="300.0" prefWidth="1880.0">

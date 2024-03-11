@@ -2,28 +2,46 @@ package fri.uniza.semestralka1.api
 
 import fri.uniza.semestralka1.observer.Observer
 import fri.uniza.semestralka1.simulation.MortgageMonteCarlo
+import fri.uniza.semestralka1.simulation.StrategyType
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class LoanService private constructor() {
 
-    private val monteCarlo: MortgageMonteCarlo = MortgageMonteCarlo()
+    private val simulations = mapOf(
+        StrategyType.A to MortgageMonteCarlo(StrategyType.A),
+        StrategyType.B to MortgageMonteCarlo(StrategyType.B),
+        StrategyType.C to MortgageMonteCarlo(StrategyType.C)
+    )
 
     @Throws(IllegalStateException::class)
     fun setReplicationsCount(replicationsCount: Long) {
-        monteCarlo.replicationsCount = replicationsCount
-    }
-
-    suspend fun runSimulation() = coroutineScope {
-        launch {
-            monteCarlo.runSimulation()
+        simulations.forEach { (_, u) ->
+            u.replicationsCount = replicationsCount
         }
     }
 
-    fun stopSimulation() = monteCarlo.stopSimulation()
+    @Throws(IllegalStateException::class)
+    fun setMortgageValue(mortgageValue: Double) {
+        simulations.forEach { (_, u) ->
+            u.mortgageValue = mortgageValue
+        }
+    }
 
-    fun subscribeStateChanges(name: String, observer: Observer<Any>) {
-        monteCarlo.state.subscribe(name , observer)
+    suspend fun runSimulation(strategyType: StrategyType) = coroutineScope {
+        launch {
+            simulations[strategyType]?.runSimulation()
+        }
+    }
+
+    fun stopSimulation() {
+        simulations.forEach { (_, u) ->
+            u.stopSimulation()
+        }
+    }
+
+    fun subscribeStateChanges(strategyType: StrategyType, observer: Observer<Any>) {
+        simulations[strategyType]?.state?.subscribe(strategyType.toString(), observer)
     }
 
     companion object {

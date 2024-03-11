@@ -1,8 +1,10 @@
 package fri.uniza.semestralka1.ui
 
 import fri.uniza.semestralka1.api.LoanService
+import fri.uniza.semestralka1.general_utils.DOUBLE_REGEX
 import fri.uniza.semestralka1.general_utils.INTEGER_REGEX
 import fri.uniza.semestralka1.simulation.SimulationState
+import fri.uniza.semestralka1.simulation.Strategy
 import fri.uniza.semestralka1.simulation.StrategyType
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
@@ -26,9 +28,9 @@ import javax.swing.SwingUtilities
 
 class GuiController : Initializable {
 
-    private var seriesA = XYSeries("Strategia A")
-    private var seriesB = XYSeries("Strategia B")
-    private var seriesC = XYSeries("Strategia C")
+    private var seriesA = XYSeries("Strategy A")
+    private var seriesB = XYSeries("Strategy B")
+    private var seriesC = XYSeries("Strategy C")
     private val loanSimulationService = LoanService.instance
 
     @FXML
@@ -50,60 +52,59 @@ class GuiController : Initializable {
     private lateinit var averageC: Text
 
     @FXML
-    private lateinit var bestStrategy: Text
+    private lateinit var replications: TextField
 
     @FXML
-    private lateinit var replications: TextField
+    private lateinit var mortgageValue: TextField
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         initCharts()
         replications.allowOnlyInt()
+        replications.allowOnlyDouble()
     }
 
     @FXML
     fun onStart() {
         resetCharts()
         loanSimulationService.setReplicationsCount(replications.text.toReplicationsCount())
+        loanSimulationService.setMortgageValue(mortgageValue.text.toMortgageValue())
 
         GlobalScope.launch {
-            loanSimulationService.runSimulation()
+            loanSimulationService.runSimulation(StrategyType.A)
         }
 
-        loanSimulationService.subscribeStateChanges("state A") { newState ->
+        GlobalScope.launch {
+            loanSimulationService.runSimulation(StrategyType.B)
+        }
+
+        GlobalScope.launch {
+            loanSimulationService.runSimulation(StrategyType.C)
+        }
+
+        loanSimulationService.subscribeStateChanges(StrategyType.A) { newState ->
             SwingUtilities.invokeLater {
                 with(newState!! as SimulationState) {
-                    seriesA.add(replicationNumber, currentAverage[StrategyType.A])
-                    averageA.text = "Average: ${currentAverage[StrategyType.A]}"
+                    seriesA.add(replicationNumber, currentAverage)
+                    averageA.text = "Average: $currentAverage"
 
-                    if (bestStrategyType != null) {
-                        bestStrategy.text = "Best strategy is $bestStrategyType"
-                    }
                 }
             }
         }
 
-        loanSimulationService.subscribeStateChanges("state B") { newState ->
+        loanSimulationService.subscribeStateChanges(StrategyType.B) { newState ->
             SwingUtilities.invokeLater {
                 with(newState!! as SimulationState) {
-                    seriesB.add(replicationNumber, currentAverage[StrategyType.B])
-                    averageB.text = "Average: ${currentAverage[StrategyType.B]}"
-
-                    if (bestStrategyType != null) {
-                        bestStrategy.text = "Best strategy is $bestStrategyType"
-                    }
+                    seriesB.add(replicationNumber, currentAverage)
+                    averageB.text = "Average: $currentAverage"
                 }
             }
         }
 
-        loanSimulationService.subscribeStateChanges("state C") { newState ->
+        loanSimulationService.subscribeStateChanges(StrategyType.C) { newState ->
             SwingUtilities.invokeLater {
                 with(newState!! as SimulationState) {
-                    seriesC.add(replicationNumber, currentAverage[StrategyType.C])
-                    averageC.text = "Average: ${currentAverage[StrategyType.C]}"
-
-                    if (bestStrategyType != null) {
-                        bestStrategy.text = "Best strategy is $bestStrategyType"
-                    }
+                    seriesC.add(replicationNumber, currentAverage)
+                    averageC.text = "Average: $currentAverage"
                 }
             }
         }
@@ -126,7 +127,6 @@ class GuiController : Initializable {
         seriesA.clear()
         seriesB.clear()
         seriesC.clear()
-        bestStrategy.text = ""
     }
 
     private fun initCharts() {
@@ -155,8 +155,8 @@ class GuiController : Initializable {
 
         val chart = ChartFactory.createXYLineChart(
             "Monte Carlo - $strategy",
-            "Počet replikácii",
-            "Zaplatené [€]",
+            "Replication",
+            "Paid [€]",
             dataset,
 
         )
@@ -182,10 +182,26 @@ class GuiController : Initializable {
         }
     }
 
+    private fun String.toMortgageValue(): Double {
+        return if (isNullOrBlank()) {
+            Strategy.INITIAL_MORTGAGE_VALUE
+        } else {
+            toDouble()
+        }
+    }
+
     private fun TextField.allowOnlyInt() {
         textProperty().addListener { _, _, newValue ->
             if (!newValue.matches(INTEGER_REGEX)) {
                 text = newValue.replace(Regex("[^0-9]"), "")
+            }
+        }
+    }
+
+    fun TextField.allowOnlyDouble() {
+        textProperty().addListener { _, _, newValue ->
+            if (!newValue.matches(DOUBLE_REGEX)) {
+                text = newValue.replace(Regex("[^0-9.]"), "")
             }
         }
     }

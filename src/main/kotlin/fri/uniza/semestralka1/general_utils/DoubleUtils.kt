@@ -3,7 +3,7 @@ package fri.uniza.semestralka1.general_utils
 import org.apache.commons.math3.util.Precision
 
 private const val EPSILON = 0.0000001
-val REGEX = Regex("(0|([1-9][0-9]*))(\\\\.[0-9]+)?\$")
+val DOUBLE_REGEX = Regex("(0|([1-9][0-9]*))(\\\\.[0-9]+)?\$")
 val INTEGER_REGEX = Regex("^[1-9]\\d*|0$")
 
 fun isAGreaterOrEqualsToB(a: Double, b: Double): Boolean {
@@ -26,20 +26,6 @@ fun isALessThanBComparator(a: Double, b: Double): Int {
     return Precision.compareTo(a, b, EPSILON)
 }
 
-fun isABetweenBandC(a: Double, b: Double, c: Double): Boolean {
-    var newB = b
-    var newC = c
-    if (isAGreaterThanB(a, c)) {
-        newB = c
-        newC = b
-    }
-    return isAGreaterThanB(a, newB) && isALessThanB(a, newC)
-}
-
 fun isAEqualsToB(a: Double, b: Double): Boolean {
     return Precision.equals(a, b, EPSILON)
-}
-
-fun average(a: Double, b: Double): Double {
-    return (a + b) / 2.0
 }
