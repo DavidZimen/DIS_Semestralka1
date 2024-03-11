@@ -28,7 +28,7 @@ class Observable<T> {
     }
 
     /**
-     * Emits new values.
+     * Sets new value for [property] and notifies all [observers].
      */
     fun next(newValue: T?) {
         property = newValue

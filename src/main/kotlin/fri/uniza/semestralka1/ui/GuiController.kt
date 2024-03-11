@@ -25,7 +25,9 @@ import java.net.URL
 import java.util.*
 import javax.swing.SwingUtilities
 
-
+/**
+ * Main UI controller of the application.
+ */
 class GuiController : Initializable {
 
     private var seriesA = XYSeries("Strategy A")
@@ -198,7 +200,7 @@ class GuiController : Initializable {
         }
     }
 
-    fun TextField.allowOnlyDouble() {
+    private fun TextField.allowOnlyDouble() {
         textProperty().addListener { _, _, newValue ->
             if (!newValue.matches(DOUBLE_REGEX)) {
                 text = newValue.replace(Regex("[^0-9.]"), "")

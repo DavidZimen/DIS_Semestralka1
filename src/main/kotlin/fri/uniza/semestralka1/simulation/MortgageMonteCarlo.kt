@@ -4,7 +4,10 @@ import fri.uniza.semestralka1.generator.*
 import fri.uniza.semestralka1.simulation.core.MonteCarloCore
 import kotlin.math.pow
 
-class MortgageMonteCarlo(val strategyType: StrategyType) : MonteCarloCore() {
+/**
+ * Monte carlo specific logic to assignment.
+ */
+class MortgageMonteCarlo(private val strategyType: StrategyType) : MonteCarloCore() {
 
     /**
      * Initial value of the mortgage for calculations.
@@ -58,6 +61,7 @@ class MortgageMonteCarlo(val strategyType: StrategyType) : MonteCarloCore() {
         updateState()
     }
 
+    // PRIVATE FUNCTIONS
     /**
      * Calculates value of [StrategyType] for one replication.
      */
@@ -75,7 +79,6 @@ class MortgageMonteCarlo(val strategyType: StrategyType) : MonteCarloCore() {
         }
     }
 
-    // PRIVATE FUNCTIONS
     /**
      * Calculates monthly payment for the mortgage.
      * @param leftToPay Money that are remaining to be paid.
